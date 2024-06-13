@@ -53,31 +53,31 @@ local function display_recaptcha(client_ip)
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha" async defer></script>
             <style>
                 html, body {
-                    height: 100%%;
+                    height: 100%;
                     margin: 0;
                     padding: 0;
-                    background-color: #1b1c30;
-                    color: #FFF;
+                    background-color: #cfe8e3; /* Light blue-green */
+                    color: #333; /* Dark text color */
                     font-family: Arial, Helvetica, sans-serif;
                 }
                 .box {
-                    border: 5px solid #2e2f4d;
-                    background-color: #222339;
+                    border: 5px solid #2e2f4d; /* Dark border */
+                    background-color: #ffffff; /* White background for box */
                     border-radius: 3px;
                     text-align: center;
                     padding: 70px 0;
-                    width: 100%%;
-                    height: 100%%;
+                    width: 100%;
+                    height: 100%;
                 }
                 .footer {
                     position: absolute;
                     bottom: 10px;
-                    width: 100%%;
+                    width: 100%;
                     text-align: center;
-                    color: #00f; /* Blue color */
+                    color: #333; /* Dark text color */
                 }
                 .footer span {
-                    color: #0f0; /* Green color */
+                    color: #006400; /* Dark green for span */
                 }
             </style>
             <script>
