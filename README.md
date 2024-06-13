@@ -42,7 +42,7 @@ There is only 1 way for right now which is below.
 #### Method 1: 
  You can edit the ``nginx.conf``, And add this below the ``http {``:
 ```lua
-access_by_lua_file /etc/nginx/conf.d/ddos-guardian-layer-7/protection.lua;
+access_by_lua_file /etc/nginx/conf.d/lyla-script-layer-7/ddos.lua;
 ```
 
 
