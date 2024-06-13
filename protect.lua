@@ -40,11 +40,10 @@ local function set_cookie()
     ngx.header['Set-Cookie'] = 'TOKEN=' .. token .. '; path=/; max-age=1800; HttpOnly'
 end
 
-local function display_recaptcha(client_ip)
-    ngx.log(ngx.ERR, "Displaying reCAPTCHA for IP: " .. client_ip)
+local function display_recaptcha()
     ngx.header.content_type = 'text/html'
     ngx.status = ngx.HTTP_FORBIDDEN
-    ngx.say(string.format([[
+    ngx.say([[
         <!DOCTYPE html>
         <html>
         <head>
@@ -96,12 +95,11 @@ local function display_recaptcha(client_ip)
                 <div class="g-recaptcha" data-sitekey="SITE-KEY" data-callback="onSubmit"></div>
             </div>
             <div class="footer">
-                <p>Your IP: %s | Your IPv6: %s</p>
                 <p>LylaNodes - Protection - <span>2024 2025</span></p>
             </div>
         </body>
         </html>
-    ]], client_ip, ngx.var.remote_addr6 or "Not available"))
+    ]])
     ngx.exit(ngx.HTTP_FORBIDDEN)
 end
 
@@ -151,7 +149,7 @@ local function main()
     end
 
     ngx.log(ngx.ERR, "Client IP is not whitelisted, showing reCAPTCHA")
-    display_recaptcha(client_ip)
+    display_recaptcha()
 end
 
 main()
