@@ -13,7 +13,7 @@ bash <(curl https://raw.githubusercontent.com/vekalmao/lyla-script/main/ddos_lyl
 ### Installing
 You then go to the directory ``/etc/nginx/conf.d/layer7` and download **ddos.lua** into it. Run this below to download it:
 ```sh
-curl -Lo protection.lua https://raw.githubusercontent.com/vekalmao/lyla-script-layer-7/main/protect.lua
+curl -Lo protect.lua https://raw.githubusercontent.com/vekalmao/lyla-script-layer-7/main/protect.lua
 ```
 
 ### File manageing
