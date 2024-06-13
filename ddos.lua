@@ -49,7 +49,7 @@ local function display_recaptcha(client_ip)
         <!DOCTYPE html>
         <html>
         <head>
-            <title>We are checking your browser.....</title>
+            <title>We are checking your browser...</title>
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha" async defer></script>
             <style>
                 html, body {
@@ -69,6 +69,16 @@ local function display_recaptcha(client_ip)
                     width: 100%%;
                     height: 100%%;
                 }
+                .footer {
+                    position: absolute;
+                    bottom: 10px;
+                    width: 100%%;
+                    text-align: center;
+                    color: #00f; /* Blue color */
+                }
+                .footer span {
+                    color: #0f0; /* Green color */
+                }
             </style>
             <script>
                 function onSubmit(token) {
@@ -79,9 +89,12 @@ local function display_recaptcha(client_ip)
         </head>
         <body>
             <div class="box">
-                <h1>We are checking your browser.....</h1>
-		<p>DDOS Protection by LylaNodes</p>
+                <h1>We are checking your browser...</h1>
+                <p>DDOS Protection by LylaNodes</p>
                 <div class="g-recaptcha" data-sitekey="SITE-KEY" data-callback="onSubmit"></div>
+            </div>
+            <div class="footer">
+                <p>LylaNodes - Protection - <span>2024 2025</span></p>
             </div>
         </body>
         </html>
@@ -99,7 +112,6 @@ local function main()
         ngx.log(ngx.ERR, "Client IP is blacklisted: " .. client_ip)
         ngx.exit(ngx.HTTP_FORBIDDEN)
     end
-
 
     if ngx.var.request_uri:match("%.php$") or
        ngx.var.request_uri:match("%.js$") or
