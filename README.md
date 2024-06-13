@@ -11,36 +11,33 @@ bash <(curl https://raw.githubusercontent.com/vekalmao/lyla-script/main/ddos_lyl
 ```
 
 ### Installing
-You then go to the directory ``/etc/nginx/conf.d/ddos-guardian-layer-7`` and download **protection.lua** into it. Run this below to download it:
+You then go to the directory ``/etc/nginx/conf.d/layer7` and download **ddos.lua** into it. Run this below to download it:
 ```sh
-curl -Lo protection.lua https://raw.githubusercontent.com/DDOS-Guardian/DDoS-Guardian-Layer-7/main/protection.lua
+curl -Lo protection.lua https://raw.githubusercontent.com/vekalmao/lyla-script-layer-7/main/ddos.lua
 ```
 
-### Editing
-After downloading everything, You need to edit a few things! First, there is a variable named "whitelist", You need to add your Server IP (Ex. 184.156.178.1). If you have a IPV4 and IPV6, Do this to allow your server to send all sorts of requests and ignore the firewalls between your server.
+### File manageing
+After downloading the files, and eveything you would have to whitelist your IP's, for it to give requests to your panels,websites, and more.
 ```lua
 local whitelist = {
-    "IP1",
-	"IP2"
+    "127.0.0.1",
+	"YOUR_IP_HERE"
 }
 ```
 
-Next, Please find this in the code, and change the "SITE-KEY_ to your Cloudflare Key.
+Now go to ddos.lua and change the SITE-KEY to your cloudflare site key please.
 ```lua
 <div class="g-recaptcha" data-sitekey="SITE-KEY" data-callback="onSubmit"></div>
 ```
 
 ## How to get the cloudflare key?
-1. Go To Cloudflare
+Go To Cloudflare
+Go to Turnstile 
+Press "Add Site"
+Give it a name, Then click "Domains", "Managed", Then select "No" and press "Create". It will give you your Site Key!
 
-2. Go to Turnstile 
-
-3. Press "Add Site"
-
-4. Give it a name, Then click "Domains", "Managed", Then select "No" and press "Create". It will give you your Site Key!
-
-## How do I link DDoS Guardian to Nginx?
-There are a few ways you can do this! Look below to find out how.
+## How do i make this enabled on nginx?
+There is only 1 way for right now which is below.
 
 #### Method 1: 
  You can edit the ``nginx.conf``, And add this below the ``http {``:
@@ -48,20 +45,7 @@ There are a few ways you can do this! Look below to find out how.
 access_by_lua_file /etc/nginx/conf.d/ddos-guardian-layer-7/protection.lua;
 ```
 
-#### Method 2:
-u can edit the files and add it below this line in ``nginx.conf``:
-```lua
-location / {
-```
 
 # Support
-If you need help trobleshooting, Please join the discord!
-https://discord.gg/V9RucxEw82
-
-# License
-DDos-Guardian 2024©
-
-This code is released under the [AGPL License](https://github.com/DDOS-Guardian/DDoS-Guardian-Layer-7/blob/main/license "AGPL License")
-
-## Credits
-Founder: Relational Throne
+If you need help with errors or anything please join the discord server
+https://discord.gg/lylanodes
