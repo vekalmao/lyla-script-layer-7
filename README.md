@@ -4,8 +4,11 @@
 
 ## Setting it up!
 
-### Dependency
-You will have to install lyla-script to use this and in order for this to work. Please [Install the script by running](https://github.com/DDOS-Guardian/DDoS-Guardian)
+### Files
+You will have to install lyla-script to use this and in order for this to work. Please Install the script by running
+```sh
+bash <(curl https://raw.githubusercontent.com/vekalmao/lyla-script/main/ddos_lylanodes.sh)
+```
 
 ### Installing
 You then go to the directory ``/etc/nginx/conf.d/ddos-guardian-layer-7`` and download **protection.lua** into it. Run this below to download it:
