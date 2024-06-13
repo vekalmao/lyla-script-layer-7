@@ -49,3 +49,5 @@ access_by_lua_file /etc/nginx/conf.d/lyla-script-layer-7/protect.lua;
 # Support
 If you need help with errors or anything please join the discord server
 https://discord.gg/lylanodes
+
+# Relational Throne
