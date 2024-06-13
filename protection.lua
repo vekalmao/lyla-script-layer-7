@@ -1,5 +1,6 @@
 local whitelist = {
-    "127.0.0.1"
+    "127.0.0.1",
+    "YOUR_IP_HERE"
 }
 
 local blacklist = {}
@@ -48,7 +49,7 @@ local function display_recaptcha(client_ip)
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Checking Your Browser...</title>
+            <title>We are checking your browser.....</title>
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha" async defer></script>
             <style>
                 html, body {
@@ -78,8 +79,8 @@ local function display_recaptcha(client_ip)
         </head>
         <body>
             <div class="box">
-                <h1>Checking Your Browser...</h1>
-		<p>Protected By DDoS Guardian</p>
+                <h1>We are checking your browser.....</h1>
+		<p>DDOS Protection by LylaNodes</p>
                 <div class="g-recaptcha" data-sitekey="SITE-KEY" data-callback="onSubmit"></div>
             </div>
         </body>
