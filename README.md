@@ -1,13 +1,11 @@
-# DDOS Guardian Layer 7 Version
+# This is LylaNodes Protection Layer 7 for your sites!
 
-## What is this?
-DDoS Guardian Layer 7 Provides protection toward layer 7 website DDoS attacks.
-The way it works is by adding a firewall that goes through DDoS Guardian that sends to the server, Which than checks if the request is friendly.
 
-## Level 7 Setup
+
+## Setting it up!
 
 ### Dependency
-You will need DDoS Guardian to use this. Please [Install DDoS Guardian](https://github.com/DDOS-Guardian/DDoS-Guardian)
+You will have to install lyla-script to use this and in order for this to work. Please [Install the script by running](https://github.com/DDOS-Guardian/DDoS-Guardian)
 
 ### Installing
 You then go to the directory ``/etc/nginx/conf.d/ddos-guardian-layer-7`` and download **protection.lua** into it. Run this below to download it:
