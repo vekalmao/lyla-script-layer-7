@@ -17,7 +17,6 @@ end
 local function get_client_ip()
     local real_ip = ngx.var.http_x_forwarded_for
     if real_ip then
-        -- If there are multiple IP addresses, take the first one
         local first_ip = real_ip:match("([^,%s]+)")
         if first_ip then
             return first_ip
@@ -45,7 +44,7 @@ local function display_recaptcha(client_ip)
     ngx.log(ngx.ERR, "Displaying reCAPTCHA for IP: " .. client_ip)
     ngx.header.content_type = 'text/html'
     ngx.status = ngx.HTTP_FORBIDDEN
-    ngx.say([[
+    ngx.say(string.format([[
         <!DOCTYPE html>
         <html>
         <head>
@@ -56,28 +55,31 @@ local function display_recaptcha(client_ip)
                     height: 100%;
                     margin: 0;
                     padding: 0;
-                    background-color: #cfe8e3; /* Light blue-green */
-                    color: #333; /* Dark text color */
+                    background: url('https://wallpapercave.com/wp/u0FTYvt.jpg') no-repeat center center fixed; 
+                    background-size: cover;
+                    color: #fff;
                     font-family: Arial, Helvetica, sans-serif;
                 }
                 .box {
-                    border: 5px solid #2e2f4d; /* Dark border */
-                    background-color: #ffffff; /* White background for box */
-                    border-radius: 3px;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    border-radius: 10px;
                     text-align: center;
-                    padding: 70px 0;
-                    width: 100%;
-                    height: 100%;
+                    padding: 50px;
+                    width: 50%;
+                    margin: auto;
+                    position: relative;
+                    top: 50%;
+                    transform: translateY(-50%);
                 }
                 .footer {
                     position: absolute;
                     bottom: 10px;
                     width: 100%;
                     text-align: center;
-                    color: #333; /* Dark text color */
+                    color: #fff;
                 }
                 .footer span {
-                    color: #006400; /* Dark green for span */
+                    color: #0f0;
                 }
             </style>
             <script>
@@ -94,11 +96,12 @@ local function display_recaptcha(client_ip)
                 <div class="g-recaptcha" data-sitekey="SITE-KEY" data-callback="onSubmit"></div>
             </div>
             <div class="footer">
+                <p>Your IP: %s | Your IPv6: %s</p>
                 <p>LylaNodes - Protection - <span>2024 2025</span></p>
             </div>
         </body>
         </html>
-    ]])
+    ]], client_ip, ngx.var.remote_addr6 or "Not available"))
     ngx.exit(ngx.HTTP_FORBIDDEN)
 end
 
