@@ -51,4 +51,4 @@ If you need help with errors or anything please join the discord server
 https://discord.gg/lylanodes
 
 # Credits
-# Relational Throne
+ Relational Throne - https://discord.gg/UbJJ2tdu5j
