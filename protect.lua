@@ -20,13 +20,11 @@ end
 local function get_client_ip()
     local real_ip = ngx.var.http_x_forwarded_for
     if real_ip then
-        -- Extract the first IP from the X-Forwarded-For header
         local first_ip = real_ip:match("([^,%s]+)")
         if first_ip then
             return first_ip
         end
     end
-    -- If no X-Forwarded-For header, use the remote address
     return ngx.var.remote_addr
 end
 
@@ -109,7 +107,6 @@ local function display_recaptcha(client_ip)
                     }
                 }
 
-                // Fetch IP details after page load
                 document.addEventListener('DOMContentLoaded', function() {
                     fetch('/ip-details')
                         .then(response => response.json())
@@ -201,6 +198,37 @@ local function main()
 
     ngx.log(ngx.ERR, "Client IP: " .. tostring(client_ip))
 
+    local lyla_protection_dir = "/var/log/lyla-protection"
+    local lyla_protection_log_file = lyla_protection_dir .. "/access.log"
+
+    -- Ensure directory exists
+    local mkdir_command = "mkdir -p " .. lyla_protection_dir
+    os.execute(mkdir_command)
+
+    local lyla_protection_file, lyla_protection_err = io.open(lyla_protection_log_file, "a")
+    if lyla_protection_file then
+        -- Get current size of the log file in KB
+        local current_file_size_kb = lyla_protection_file:seek("end") / 1024
+
+        local max_log_file_size_kb = 1024 -- 1 MB, you can adjust as needed
+        if current_file_size_kb >= max_log_file_size_kb then
+            lyla_protection_file:close()
+            lyla_protection_file = io.open(lyla_protection_log_file, "w")
+            if not lyla_protection_file then
+                ngx.log(ngx.ERR, "Failed to truncate lyla-protection access log file")
+            end
+        end
+
+        local log_line = "Client IP: " .. tostring(client_ip) .. "\n"
+        local success, write_err = lyla_protection_file:write(log_line)
+        if not success then
+            ngx.log(ngx.ERR, "Failed to write to lyla-protection access log file: " .. write_err)
+        end
+        lyla_protection_file:close()
+    else
+        ngx.log(ngx.ERR, "Failed to open lyla-protection access log file: " .. lyla_protection_err)
+    end
+
     if ip_in_list(client_ip, blacklist) then
         ngx.log(ngx.ERR, "Client IP is blacklisted: " .. client_ip)
         display_blacklisted_message()
@@ -232,13 +260,13 @@ local function main()
 
     if ip_in_list(client_ip, whitelist) then
         ngx.log(ngx.ERR, "Client IP is whitelisted: " .. client_ip)
-        set_cookie() -- Generate token for whitelisted IP
+        set_cookie()
         return 
     end
 
     if ngx.var.cookie_TOKEN then
         ngx.log(ngx.ERR, "Token cookie found")
-        return -- Allow the request to proceed normally
+        return
     end
 
     ngx.log(ngx.ERR, "Client IP is not whitelisted, showing reCAPTCHA")
