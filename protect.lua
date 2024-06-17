@@ -8,6 +8,94 @@ local blacklist = {
     "10.0.0.1"
 }
 
+local request_counters = {} -- Table to keep track of request counts per IP
+local max_requests = 5
+local traffic_limit = 1 * 1024 * 1024 * 1024 * 1024 -- 1 TB in bytes
+
+-- Table to store traffic data per IP
+local traffic_data = {}
+
+-- List of known VPN IP ranges
+local vpn_ip_ranges = {
+    -- ExpressVPN
+    "4.16.32.0/20",
+    "4.16.240.0/20",
+    "45.64.64.0/22",
+    "45.64.80.0/22",
+    "45.64.152.0/22",
+    "45.64.156.0/22",
+    -- NordVPN
+    "103.86.96.0/22",
+    "185.189.160.0/22",
+    "185.189.162.0/23",
+    "185.189.164.0/22",
+    -- CyberGhost VPN
+    "104.238.191.0/24",
+    "172.107.86.0/24",
+    "185.199.80.0/24",
+    -- Private Internet Access
+    "10.0.0.0/16",
+    "185.233.104.0/22",
+    "185.233.106.0/23",
+    "185.233.108.0/22",
+    -- VyprVPN
+    "92.38.160.0/19",
+    "185.205.40.0/22",
+    "2001:1c00::/32",
+    -- Surfshark
+    "109.70.60.0/22",
+    "172.104.0.0/15",
+    "5.252.161.0/24",
+    -- StrongVPN
+    "216.131.80.0/20",
+    "68.65.120.0/21",
+    -- Windscribe VPN
+    "104.244.72.0/24",
+    "172.107.95.0/24",
+    -- ProtonVPN
+    "185.244.192.0/22",
+    "185.244.196.0/23",
+    "185.244.198.0/24",
+    -- IPVanish
+    "64.145.64.0/18",
+    "209.99.80.0/21",
+    -- TunnelBear VPN
+    "172.111.0.0/16",
+    "198.7.229.0/24",
+    -- Mullvad VPN
+    "5.45.64.0/20",
+    "185.206.128.0/20",
+    -- AirVPN
+    "5.196.64.0/19",
+    "185.17.184.0/23",
+    -- HideMyAss (HMA)
+    "5.62.56.0/21",
+    "204.11.128.0/17",
+    -- Hotspot Shield VPN
+    "199.193.246.0/24",
+    "64.68.148.0/22",
+    -- ZenMate VPN
+    "185.207.16.0/22",
+    "185.207.20.0/23",
+    -- PureVPN
+    "5.175.128.0/17",
+    "185.128.41.0/24",
+    -- Astrill VPN
+    "45.32.12.0/22",
+    "45.77.32.0/20",
+    -- Add more VPN IP ranges as necessary
+}
+
+-- Function to check if an IP is in a VPN IP range
+local function is_vpn_ip(ip)
+    for _, range in ipairs(vpn_ip_ranges) do
+        if ngx.re.match(ip, "^" .. range) then
+            return true
+        end
+    end
+    return false
+end
+
 local function ip_in_list(ip, list)
     for _, value in ipairs(list) do
         if value == ip then
@@ -26,6 +114,20 @@ local function get_client_ip()
         end
     end
     return ngx.var.remote_addr
+end
+
+-- Function to get traffic data for an IP
+local function get_traffic_for_ip(ip)
+    return traffic_data[ip] or 0
+end
+
+-- Function to update traffic data for an IP
+local function update_traffic_for_ip(ip, bytes)
+    if not traffic_data[ip] then
+        traffic_data[ip] = bytes
+    else
+        traffic_data[ip] = traffic_data[ip] + bytes
+    end
 end
 
 local function generate_random_token()
