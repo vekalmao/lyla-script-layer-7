@@ -8,8 +8,75 @@ local blacklist = {
     "10.0.0.1"
 }
 
-local request_counters = {} -- Table to keep track of request counts per IP
-local max_requests = 5
+local vpn_ip_ranges = {
+    -- ExpressVPN
+    "4.16.32.0/20",
+    "4.16.240.0/20",
+    "45.64.64.0/22",
+    "45.64.80.0/22",
+    "45.64.152.0/22",
+    "45.64.156.0/22",
+    -- NordVPN
+    "103.86.96.0/22",
+    "185.189.160.0/22",
+    "185.189.162.0/23",
+    "185.189.164.0/22",
+    -- CyberGhost VPN
+    "104.238.191.0/24",
+    "172.107.86.0/24",
+    "185.199.80.0/24",
+    -- Private Internet Access
+    "10.0.0.0/16",
+    "185.233.104.0/22",
+    "185.233.106.0/23",
+    "185.233.108.0/22",
+    -- VyprVPN
+    "92.38.160.0/19",
+    "185.205.40.0/22",
+    "2001:1c00::/32",
+    -- Surfshark
+    "109.70.60.0/22",
+    "172.104.0.0/15",
+    "5.252.161.0/24",
+    -- StrongVPN
+    "216.131.80.0/20",
+    "68.65.120.0/21",
+    -- Windscribe VPN
+    "104.244.72.0/24",
+    "172.107.95.0/24",
+    -- ProtonVPN
+    "185.244.192.0/22",
+    "185.244.196.0/23",
+    "185.244.198.0/24",
+    -- IPVanish
+    "64.145.64.0/18",
+    "209.99.80.0/21",
+    -- TunnelBear VPN
+    "172.111.0.0/16",
+    "198.7.229.0/24",
+    -- Mullvad VPN
+    "5.45.64.0/20",
+    "185.206.128.0/20",
+    -- AirVPN
+    "5.196.64.0/19",
+    "185.17.184.0/23",
+    -- HideMyAss (HMA)
+    "5.62.56.0/21",
+    "204.11.128.0/17",
+    -- Hotspot Shield VPN
+    "199.193.246.0/24",
+    "64.68.148.0/22",
+    -- ZenMate VPN
+    "185.207.16.0/22",
+    "185.207.20.0/23",
+    -- PureVPN
+    "5.175.128.0/17",
+    "185.128.41.0/24",
+    -- Astrill VPN
+    "45.32.12.0/22",
+    "45.77.32.0/20",
+    -- Add more VPN IP ranges as necessary
+}
 
 local function ip_in_list(ip, list)
     for _, value in ipairs(list) do
@@ -195,98 +262,19 @@ local function display_blacklisted_message()
     ngx.exit(ngx.HTTP_FORBIDDEN)
 end
 
-local function main()
+function main()
     local client_ip = get_client_ip()
-    local user_agent = ngx.var.http_user_agent or ""
 
-    ngx.log(ngx.ERR, "Client IP: " .. tostring(client_ip))
-
-    local lyla_protection_dir = "/var/log/lyla-protection"
-    local lyla_protection_log_file = lyla_protection_dir .. "/access.log"
-
-    -- Ensure directory exists
-    local mkdir_command = "mkdir -p " .. lyla_protection_dir
-    os.execute(mkdir_command)
-
-    local lyla_protection_file, lyla_protection_err = io.open(lyla_protection_log_file, "a")
-    if lyla_protection_file then
-        -- Get current size of the log file in KB
-        local current_file_size_kb = lyla_protection_file:seek("end") / 1024
-
-        local max_log_file_size_kb = 1024 -- 1 MB, you can adjust as needed
-        if current_file_size_kb >= max_log_file_size_kb then
-            lyla_protection_file:close()
-            lyla_protection_file = io.open(lyla_protection_log_file, "w")
-            if not lyla_protection_file then
-                ngx.log(ngx.ERR, "Failed to truncate lyla-protection access log file")
-            end
-        end
-
-        local log_line = "Client IP: " .. tostring(client_ip) .. "\n"
-        local success, write_err = lyla_protection_file:write(log_line)
-        if not success then
-            ngx.log(ngx.ERR, "Failed to write to lyla-protection access log file: " .. write_err)
-        end
-        lyla_protection_file:close()
-    else
-        ngx.log(ngx.ERR, "Failed to open lyla-protection access log file: " .. lyla_protection_err)
-    end
-
-    -- Update request counter
-    if not request_counters[client_ip] then
-        request_counters[client_ip] = 1
-    else
-        request_counters[client_ip] = request_counters[client_ip] + 1
-    end
-
-    if request_counters[client_ip] > max_requests then
-        table.insert(blacklist, client_ip)
-        ngx.log(ngx.ERR, "Client IP blacklisted due to excessive requests: " .. client_ip)
-        display_blacklisted_message()
+    if ip_in_list(client_ip, whitelist) then
         return
     end
 
     if ip_in_list(client_ip, blacklist) then
-        ngx.log(ngx.ERR, "Client IP is blacklisted: " .. client_ip)
         display_blacklisted_message()
         return
     end
 
-    if ngx.var.request_uri:match("%.php$") or
-       ngx.var.request_uri:match("%.js$") or
-       ngx.var.request_uri:match("%.html$") or
-       ngx.var.request_uri:match("%.jsx$") or
-       ngx.var.request_uri:match("%.ts$") or
-       ngx.var.request_uri:match("%.tsx$") or
-       ngx.var.request_uri:match("%.png$") or
-       ngx.var.request_uri:match("%.jpg$") or
-       ngx.var.request_uri:match("%.jpeg$") or
-       ngx.var.request_uri:match("%.gif$") or
-       ngx.var.request_uri:match("%.svg$") or
-       ngx.var.request_uri:match("%.ico$") or
-       ngx.var.request_uri:match("%.css$") or
-       ngx.var.request_uri:match("%.woff$") or
-       ngx.var.request_uri:match("%.woff2$") or
-       ngx.var.request_uri:match("%.ttf$") or
-       ngx.var.request_uri:match("%.eot$") or
-       ngx.var.request_uri:match("%.otf$") or
-       ngx.var.request_uri:match("%.webp$") then
-        ngx.log(ngx.ERR, "Requested file type allowed")
-        return
-    end
-
-    if ip_in_list(client_ip, whitelist) then
-        ngx.log(ngx.ERR, "Client IP is whitelisted: " .. client_ip)
-        set_cookie()
-        return 
-    end
-
-    if ngx.var.cookie_TOKEN then
-        ngx.log(ngx.ERR, "Token cookie found")
-        return
-    end
-
-    ngx.log(ngx.ERR, "Client IP is not whitelisted, showing reCAPTCHA")
+    -- Display reCAPTCHA for all other IPs
     display_recaptcha(client_ip)
 end
 
