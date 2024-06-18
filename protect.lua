@@ -164,8 +164,16 @@ local function display_recaptcha(client_ip)
             </style>
             <script>
                 function onSubmit(token) {
-                    document.cookie = "TOKEN=" + token + "; max-age=1800; path=/";
-                    window.location.reload();
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '';
+                    var hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'g-recaptcha-response';
+                    hiddenField.value = token;
+                    form.appendChild(hiddenField);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
 
                 function toggleHidden() {
@@ -264,6 +272,10 @@ end
 
 function main()
     local client_ip = get_client_ip()
+    
+    if ngx.var.cookie_TOKEN then
+        return
+    end
 
     if ip_in_list(client_ip, whitelist) then
         return
@@ -274,7 +286,18 @@ function main()
         return
     end
 
-    -- Display reCAPTCHA for all other IPs
+    if ngx.var.request_method == "POST" then
+        ngx.req.read_body()
+        local args = ngx.req.get_post_args()
+        local token = args["g-recaptcha-response"]
+
+        if token and token ~= "" then
+            set_cookie()
+            ngx.redirect(ngx.var.request_uri)
+            return
+        end
+    end
+
     display_recaptcha(client_ip)
 end
 
